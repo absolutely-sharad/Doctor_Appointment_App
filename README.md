@@ -98,14 +98,126 @@ hooks/
    - **Mobile**: Use Expo Go app to scan the QR code
    - **Simulator**: Press 'i' for iOS or 'a' for Android simulator
 
+## 📱 Viewing on Mobile Devices
+
+### Option 1: Expo Go App (Recommended for Development)
+
+#### For iOS:
+1. **Install Expo Go** from the App Store
+2. **Start the development server** with `npm run dev`
+3. **Scan the QR code** displayed in the terminal or browser using:
+   - iPhone Camera app (iOS 11+)
+   - Expo Go app's built-in scanner
+4. **Open in Expo Go** when prompted
+
+#### For Android:
+1. **Install Expo Go** from Google Play Store
+2. **Start the development server** with `npm run dev`
+3. **Scan the QR code** using Expo Go app's scanner
+4. **Open in Expo Go** when prompted
+
+### Option 2: Development Build (For Production-like Testing)
+
+For features that require native code or to test the app in a production-like environment:
+
+#### Prerequisites:
+- Expo CLI: `npm install -g @expo/cli`
+- EAS CLI: `npm install -g eas-cli`
+
+#### Create Development Build:
+
+1. **Configure EAS Build**
+   ```bash
+   eas build:configure
+   ```
+
+2. **Build for iOS**
+   ```bash
+   eas build --platform ios --profile development
+   ```
+
+3. **Build for Android**
+   ```bash
+   eas build --platform android --profile development
+   ```
+
+4. **Install on Device**
+   - **iOS**: Install via TestFlight or direct installation
+   - **Android**: Download and install the APK file
+
+### Option 3: Local Simulators
+
+#### iOS Simulator (macOS only):
+1. **Install Xcode** from the Mac App Store
+2. **Start development server** with `npm run dev`
+3. **Press 'i'** in the terminal to open iOS simulator
+4. **Select device** from the simulator menu
+
+#### Android Emulator:
+1. **Install Android Studio**
+2. **Set up Android Virtual Device (AVD)**
+3. **Start development server** with `npm run dev`
+4. **Press 'a'** in the terminal to open Android emulator
+
+### Option 4: Physical Device via USB (Advanced)
+
+#### For iOS:
+1. **Enable Developer Mode** on your iPhone
+2. **Connect via USB** and trust the computer
+3. **Use Xcode** to install the development build
+
+#### For Android:
+1. **Enable Developer Options** in Settings
+2. **Enable USB Debugging**
+3. **Connect via USB** and allow debugging
+4. **Install APK** using `adb install app.apk`
+
+### Troubleshooting Mobile Viewing
+
+#### Common Issues:
+- **QR Code not scanning**: Ensure both devices are on the same network
+- **App not loading**: Check firewall settings and network connectivity
+- **Performance issues**: Use development build for better performance
+- **Features not working**: Some features require native code (use development build)
+
+#### Network Requirements:
+- Both computer and mobile device must be on the same WiFi network
+- Corporate networks may block the connection
+- Use mobile hotspot if network issues persist
+
 ### Build for Production
 
 ```bash
 # Build for web deployment
 npm run build:web
 
-# The built files will be in the dist/ directory
+# Build for app stores
+eas build --platform all --profile production
 ```
+
+## 💳 Payments Integration
+
+### RevenueCat for Mobile Subscriptions
+
+When adding subscriptions or in-app purchases to the app, use **RevenueCat** - the best solution for mobile subscriptions and in-app purchases.
+
+#### Why RevenueCat?
+- Handles billing, entitlements, analytics, and receipt validation out of the box
+- Supports both Apple App Store and Google Play Store billing
+- Makes it easier for developers to monetize their apps without building complex infrastructure
+
+#### Important Notes:
+- **Native Code Required**: RevenueCat requires native code and will not function in Bolt's in-browser preview
+- **Export Required**: Since Bolt projects are built on Expo, you'll need to export your project and open it locally (e.g., in Cursor or VS Code) to install the RevenueCat SDK
+- **Development Build**: To test purchases, create a development build using the Expo Dev Client
+
+#### Getting Started:
+1. **Export your project** from Bolt to your local development environment
+2. **Follow the official guide**: https://www.revenuecat.com/docs/getting-started/installation/expo
+3. **Create development build** for testing purchases on real devices
+
+#### Important:
+**DO NOT use Stripe** for mobile platform subscriptions as it does not support Apple or Google billing. RevenueCat is the preferred tool for mobile subscription use cases.
 
 ## 🎨 Design System
 
@@ -179,6 +291,8 @@ interface Prescription {
 3. **Redux Toolkit**: Chosen for predictable state management and excellent DevTools
 4. **Mock Backend**: Implemented realistic API simulation for demonstration purposes
 5. **Component Modularity**: Each component focuses on a single responsibility
+6. **Web-First Platform**: Default platform is Web with mobile compatibility
+7. **Expo Managed Workflow**: Uses Expo managed workflow exclusively (no native code directories)
 
 ### Design Decisions
 
@@ -187,6 +301,7 @@ interface Prescription {
 3. **Color System**: Created semantic color tokens for consistent theming
 4. **Spacing**: 8px base unit system for consistent layouts
 5. **Animations**: Subtle micro-interactions to enhance user experience
+6. **Styling**: Uses `StyleSheet.create` exclusively (no NativeWind or alternative styling libraries)
 
 ### Technical Assumptions
 
@@ -195,6 +310,8 @@ interface Prescription {
 3. **Authentication**: Assumed single doctor user (no login system)
 4. **Offline Support**: Not implemented (requires backend integration)
 5. **Real-time Updates**: Not implemented (would require WebSocket/Server-Sent Events)
+6. **Native APIs**: Limited to web-compatible APIs (no Haptics, Local Authentication, etc.)
+7. **Error Handling**: Prefers showing errors directly in UI instead of Alert API
 
 ### Business Logic Assumptions
 
@@ -203,6 +320,14 @@ interface Prescription {
 3. **Prescription Workflow**: Simplified prescription creation without drug interaction checks
 4. **Status Management**: Doctors can update appointment status manually
 5. **Data Validation**: Basic client-side validation for prescription forms
+
+### Framework Constraints
+
+1. **Required Hook**: The `useFrameworkReady` hook in `app/_layout.tsx` is REQUIRED and must NEVER be removed or modified
+2. **Navigation Structure**: All routes must be placed in the `/app` directory
+3. **Component Organization**: Reusable components must be placed in the `/components` directory
+4. **Environment Variables**: Uses Expo's environment variable system (not Vite)
+5. **Font Management**: Uses `@expo-google-fonts` packages exclusively
 
 ## 🚀 Deployment
 
@@ -237,6 +362,12 @@ The application is deployed on Netlify and automatically builds from the main br
 - Biometric authentication
 - Camera integration for document scanning
 - Voice notes for appointments
+- RevenueCat integration for premium features
+
+### Platform-Specific Features
+- iOS: HealthKit integration
+- Android: Google Fit integration
+- Web: Progressive Web App (PWA) capabilities
 
 ## 🤝 Contributing
 
@@ -246,6 +377,13 @@ The application is deployed on Netlify and automatically builds from the main br
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
+### Development Guidelines
+- Follow the existing code structure and patterns
+- Use TypeScript for all new code
+- Implement proper error handling
+- Test on multiple platforms (web, iOS, Android)
+- Maintain the existing design system
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
@@ -253,6 +391,8 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 ## 👨‍⚕️ About
 
 MedConnect Pro is designed to streamline the appointment management process for healthcare professionals. The application focuses on user experience, performance, and maintainability while providing essential features for medical practice management.
+
+The app demonstrates modern React Native development practices using Expo, showcasing how to build production-ready applications with beautiful UI, smooth animations, and robust state management.
 
 ---
 
